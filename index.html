@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Spaceman Indonesia 🇮🇩</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: radial-gradient(ellipse at center, #1a0033 0%, #000 100%);
+      color: white;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .stars {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: url('https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif') repeat;
+      z-index: 0;
+      opacity: 0.3;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      padding-top: 40px;
+    }
+
+    #spaceman {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      transition: bottom 0.1s linear;
+    }
+
+    #multiplier {
+      font-size: 50px;
+      margin-top: 100px;
+      font-weight: bold;
+      color: #00ffcc;
+      text-shadow: 0 0 20px #00ffcc;
+    }
+
+    #cashout {
+      margin-top: 20px;
+      font-size: 24px;
+      padding: 12px 30px;
+      background: #ff0055;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ff0055;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 22px;
+    }
+
+    #history {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      color: #ccc;
+    }
+
+    .multiplier-bubble {
+      display: inline-block;
+      background: #222;
+      padding: 4px 10px;
+      border-radius: 10px;
+      margin: 0 5px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars"></div>
+
+  <div class="container">
+    <h1>🚀 Spaceman Indonesia</h1>
+    <div id="multiplier">1.00x</div>
+    <button id="cashout">CASH OUT</button>
+    <div id="result"></div>
+    <img id="spaceman" src="https://i.ibb.co/YD3Nmhg/spaceman.png" alt="Spaceman">
+  </div>
+
+  <div id="history">History: </div>
+
+  <!-- Background Musik Luar Angkasa -->
+  <audio id="bg-music" autoplay loop>
+    <source src="https://incompetech.com/music/royalty-free/mp3-royaltyfree/Deep%20Space.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    let multiplier = 1.00;
+    let interval;
+    let crashed = false;
+    let isCashedOut = false;
+    let crashPoint = (Math.random() * 5 + 1).toFixed(2); // 1.00 - 6.00x
+    const betAmount = 10000;
+    const history = [];
+
+    const multiplierEl = document.getElementById('multiplier');
+    const spacemanEl = document.getElementById('spaceman');
+    const resultEl = document.getElementById('result');
+    const cashoutBtn = document.getElementById('cashout');
+    const historyEl = document.getElementById('history');
+
+    let height = 50;
+
+    function startGame() {
+      interval = setInterval(() => {
+        multiplier += 0.01;
+        multiplier = parseFloat(multiplier.toFixed(2));
+        multiplierEl.innerText = `${multiplier.toFixed(2)}x`;
+        height += 2;
+        spacemanEl.style.bottom = `${height}px`;
+
+        if (multiplier >= crashPoint) {
+          clearInterval(interval);
+          crashed = true;
+          if (!isCashedOut) {
+            resultEl.innerText = "💥 Spaceman CRASHED!";
+            cashoutBtn.disabled = true;
+            addHistory(multiplier, false);
+          }
+        }
+      }, 100);
+    }
+
+    function addHistory(multi, win) {
+      history.unshift(`<span class="multiplier-bubble" style="color:${win ? '#00ffcc' : '#ff5555'}">${multi.toFixed(2)}x</span>`);
+      historyEl.innerHTML = "History: " + history.slice(0, 10).join('');
+    }
+
+    cashoutBtn.onclick = () => {
+      if (!crashed && !isCashedOut) {
+        clearInterval(interval);
+        const winAmount = (betAmount * multiplier).toFixed(0);
+        resultEl.innerText = `✅ Kamu menang Rp ${winAmount}`;
+        isCashedOut = true;
+        addHistory(multiplier, true);
+        cashoutBtn.disabled = true;
+      }
+    }
+
+    window.onload = startGame;
+
+    // Autoplay Musik Saat Klik Pertama
+    window.addEventListener('click', () => {
+      const audio = document.getElementById('bg-music');
+      audio.play().catch(() => {});
+    }, { once: true });
+  </script>
+</body>
+</html>
